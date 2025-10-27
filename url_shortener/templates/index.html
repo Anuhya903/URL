@@ -298,30 +298,46 @@
 
         function copyToClipboard(text, evt) {
             const textToCopy = text || document.getElementById('shortUrl').value;
-            // Use Clipboard API with fallback
+            
             const doPulse = (button) => {
                 if (!button) return;
                 button.classList.add('pulse');
                 setTimeout(() => button.classList.remove('pulse'), 900);
             };
 
-            navigator.clipboard.writeText(textToCopy).then(() => {
+            // FIX: Check if clipboard API is available and context is secure
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(textToCopy).then(() => {
+                    showToast('URL copied to clipboard!');
+                    const btn = evt ? evt.target.closest('button') : document.getElementById('copyButton');
+                    doPulse(btn);
+                }).catch(() => {
+                    // Fallback if clipboard API fails
+                    fallbackCopy(textToCopy, evt, doPulse);
+                });
+            } else {
+                // Use fallback for non-secure contexts or older browsers
+                fallbackCopy(textToCopy, evt, doPulse);
+            }
+        }
+
+        // FIX: Add this fallback function
+        function fallbackCopy(text, evt, doPulse) {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.opacity = '0';
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
                 showToast('URL copied to clipboard!');
-                // Pulse the button that triggered the action, or the main copy button
-                const btn = evt ? (evt.target && evt.target.closest ? evt.target.closest('button') : null) : document.getElementById('copyButton');
-                doPulse(btn);
-            }).catch(() => {
-                // Fallback for older browsers
-                const temp = document.createElement('textarea');
-                temp.value = textToCopy;
-                document.body.appendChild(temp);
-                temp.select();
-                try { document.execCommand('copy'); showToast('URL copied to clipboard!'); }
-                catch (e) { showToast('Copy failed'); }
-                document.body.removeChild(temp);
-                const btn = evt ? (evt.target && evt.target.closest ? evt.target.closest('button') : null) : document.getElementById('copyButton');
-                doPulse(btn);
-            });
+            } catch (err) {
+                showToast('Failed to copy URL');
+            }
+            document.body.removeChild(textArea);
+            const btn = evt ? evt.target.closest('button') : document.getElementById('copyButton');
+            doPulse(btn);
         }
 
         function showToast(message) {

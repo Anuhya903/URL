@@ -1,3 +1,4 @@
+import os
 from flask import Flask, render_template, request, redirect, jsonify, url_for
 import sqlite3
 import random
@@ -49,7 +50,16 @@ def is_valid_url(url):
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    # Get URLs for statistics table
+    conn = sqlite3.connect('urls.db')
+    conn.row_factory = sqlite3.Row
+    c = conn.cursor()
+    urls = c.execute('''
+        SELECT original_url, short_code, created_at, click_count
+        FROM urls ORDER BY created_at DESC
+    ''').fetchall()
+    conn.close()
+    return render_template('index.html', urls=urls)
 
 @app.route('/shorten', methods=['POST'])
 def shorten_url():
@@ -59,7 +69,7 @@ def shorten_url():
         return jsonify({'error': 'Please provide a URL'}), 400
     
     if not is_valid_url(original_url):
-        return jsonify({'error': 'Invalid URL format'}), 400
+        return jsonify({'error': 'Invalid URL format. Include http:// or https://'}), 400
     
     short_code = generate_short_code()
     
@@ -73,7 +83,8 @@ def shorten_url():
         conn.commit()
         conn.close()
         
-        short_url = request.host_url + short_code
+        # FIX: Use url_for for correct URL generation
+        short_url = url_for('redirect_to_url', short_code=short_code, _external=True)
         return jsonify({
             'original_url': original_url,
             'short_url': short_url,
@@ -104,18 +115,8 @@ def redirect_to_url(short_code):
     conn.close()
     return render_template('index.html', error='URL not found'), 404
 
-@app.route('/stats')
-def stats():
-    conn = sqlite3.connect('urls.db')
-    conn.row_factory = sqlite3.Row
-    c = conn.cursor()
-    urls = c.execute('''
-        SELECT original_url, short_code, created_at, click_count
-        FROM urls ORDER BY created_at DESC
-    ''').fetchall()
-    conn.close()
-    return render_template('index.html', urls=urls)
-
 if __name__ == '__main__':
     init_db()
-    app.run(debug=True)
+    # Render deployment fix
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=False)
