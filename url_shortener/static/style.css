@@ -1,0 +1,283 @@
+/* Modern styles for URL Shortener */
+
+/* Typography */
+body {
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+}
+
+/* Site title styling */
+.site-title {
+    color: #000000;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Animated Background */
+.animated-background {
+    position: fixed;
+    inset: 0;
+    /* Sky blue animated gradient: #87CEEB -> #B6E2FF */
+    background: linear-gradient(120deg, #87CEEB 0%, #B6E2FF 100%);
+    background-size: 200% 200%;
+    animation: gradientShift 12s ease infinite;
+    z-index: -1;
+}
+
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Container */
+.container {
+    max-width: 1000px;
+}
+
+/* Glassmorphism */
+.glass-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+    padding: 20px;
+}
+
+.glass-alert {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Form Styles */
+.form-control {
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 1rem;
+}
+
+.form-control:focus {
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.25);
+}
+
+/* Button Styles */
+.btn {
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background: linear-gradient(45deg, #87CEEB, #B6E2FF);
+    border: none;
+    color: #063b6a;
+}
+
+.btn-whatsapp { background-color: #25D366; color: white; }
+.btn-instagram { background: linear-gradient(45deg,#f58529 0%,#dd2a7b 30%,#8134af 60%,#515bd4 100%); color: white; }
+
+.hover-effect {
+    transform: scale(1);
+    transition: all 0.3s ease;
+}
+
+.hover-effect:hover {
+    transform: scale(1.05);
+    box-shadow: 0 7px 14px rgba(0, 0, 0, 0.1);
+}
+
+/* Social Share Buttons */
+.btn-twitter {
+    background-color: #1DA1F2;
+    color: white;
+}
+
+.btn-facebook {
+    background-color: #4267B2;
+    color: white;
+}
+
+.btn-linkedin {
+    background-color: #0077B5;
+    color: white;
+}
+
+/* Uniform social button appearance */
+.btn-social {
+    min-width: 110px;
+    height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border-radius: 8px;
+    padding: 6px 10px;
+    font-weight: 600;
+    color: white !important;
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.btn-social i { font-size: 1rem; }
+
+.btn-social:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.12); }
+
+.btn-whatsapp { background-color: #25D366; color: white; }
+.btn-instagram { background: linear-gradient(45deg,#f58529 0%,#dd2a7b 30%,#8134af 60%,#515bd4 100%); color: white; }
+
+.social-share-buttons { padding: 0.6rem 0; }
+
+/* URL Input Group */
+.url-input-group {
+    position: relative;
+}
+
+.validation-icon {
+    position: absolute;
+    right: 120px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+}
+
+/* Table Styles */
+.table {
+    color: white;
+    margin-bottom: 0;
+}
+
+.table > :not(caption) > * > * {
+    background-color: transparent;
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.table a {
+    color: white;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-out;
+}
+
+.slide-in {
+    animation: slideIn 0.3s ease-out;
+}
+
+.pulse {
+    animation: pulse 0.3s ease-in-out;
+}
+
+/* Recent URLs Section */
+.recent-urls-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.recent-url-item {
+    padding: 10px;
+    margin-bottom: 10px;
+    transition: all 0.3s ease;
+}
+
+.recent-url-item:hover {
+    transform: translateX(5px);
+}
+
+/* Toast Notification */
+.toast {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Loading Spinner */
+.spinner-border {
+    width: 1.2rem;
+    height: 1.2rem;
+    margin-right: 0.5rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+    
+    .input-group {
+        flex-direction: column;
+    }
+    
+    .input-group > * {
+        margin: 5px 0;
+        width: 100% !important;
+    }
+    
+    .validation-icon {
+        right: 20px;
+    }
+    
+    .social-share-buttons .btn {
+        padding: 8px 16px;
+        font-size: 0.875rem;
+    }
+
+    /* On small screens, reduce button min width so they wrap nicely */
+    .btn-social { min-width: 90px; height: 38px; }
+    
+    .table {
+        font-size: 0.875rem;
+    }
+}
