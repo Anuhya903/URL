@@ -56,6 +56,8 @@
                                         <i class="fas fa-copy"></i> Copy
                                     </button>
                                 </div>
+                                <!-- Clickable short URL link (populated after shortening) -->
+                                <p class="mt-2 mb-0"><a id="shortUrlLink" class="d-none text-break" href="#" target="_blank" rel="noopener"> </a></p>
                                 <div class="social-share-buttons d-flex justify-content-center flex-wrap gap-2 py-2">
                                     <button type="button" class="btn btn-sm btn-social btn-twitter hover-effect share-btn" data-platform="twitter">
                                         <i class="fab fa-twitter"></i>
@@ -73,10 +75,7 @@
                                         <i class="fab fa-whatsapp"></i>
                                         <span class="btn-text d-none d-sm-inline ms-2">WhatsApp</span>
                                     </button>
-                                    <button type="button" class="btn btn-sm btn-social btn-instagram hover-effect share-btn" data-platform="instagram">
-                                        <i class="fab fa-instagram"></i>
-                                        <span class="btn-text d-none d-sm-inline ms-2">Instagram</span>
-                                    </button>
+                                    <!-- Instagram removed: Instagram does not support direct link sharing -->
                                 </div>
                             </div>
                         </div>
@@ -275,10 +274,17 @@
                 
                 if (response.ok) {
                     shortUrlInput.value = data.short_url;
+                    // populate clickable link
+                    const shortLink = document.getElementById('shortUrlLink');
+                    if (shortLink) {
+                        shortLink.href = data.short_url;
+                        shortLink.textContent = data.short_url;
+                        shortLink.classList.remove('d-none');
+                    }
                     resultContainer.classList.remove('d-none');
                     errorContainer.classList.add('d-none');
                     addRecentUrl(urlInput.value, data.short_url);
-                    
+
                     // Auto-copy to clipboard
                     copyToClipboard(data.short_url);
                 } else {
@@ -346,49 +352,53 @@
         }
 
         function shareUrl(platform) {
-            const shortUrl = document.getElementById('shortUrl').value;
-            const originalUrl = document.getElementById('urlInput').value;
-            let shareLink = '';
+            // Always use the visible shortened link anchor when sharing; fall back to the input value.
+            const shortLinkEl = document.getElementById('shortUrlLink');
+            let shortUrl = '';
+            if (shortLinkEl && !shortLinkEl.classList.contains('d-none') && shortLinkEl.href) {
+                shortUrl = shortLinkEl.href;
+            } else {
+                const shortEl = document.getElementById('shortUrl');
+                shortUrl = shortEl ? shortEl.value.trim() : '';
+            }
+            if (!shortUrl) {
+                showToast('Please shorten a URL first.');
+                return;
+            }
 
-            // Create platform-specific sharing messages
-            const twitterText = `I just shortened ${originalUrl} to this convenient link:`;
-            const linkedinTitle = 'Shortened URL via URL Shortener';
-            const linkedinText = `I wanted to share this shortened link with you. Original URL: ${originalUrl}`;
+            let shareLink = '';
+            const tweetText = `Check this shortened link:`;
+            const linkedInTitle = 'Shortened URL';
+            const linkedInSummary = 'A quick link I created.';
 
             switch (platform) {
                 case 'twitter':
-                    shareLink = `https://twitter.com/intent/tweet?text=${encodeURIComponent(twitterText)}&url=${encodeURIComponent(shortUrl)}&hashtags=URLshortener`;
+                    // Twitter intent: include URL parameter (keeps link clickable)
+                    shareLink = `https://twitter.com/intent/tweet?url=${encodeURIComponent(shortUrl)}&text=${encodeURIComponent(tweetText)}&hashtags=URLshortener`;
                     break;
                 case 'facebook':
-                    shareLink = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shortUrl)}&quote=${encodeURIComponent('Check out this shortened URL!')}`;
+                    // Facebook sharer expects 'u' param
+                    shareLink = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shortUrl)}`;
                     break;
                 case 'linkedin':
-                    shareLink = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shortUrl)}&title=${encodeURIComponent(linkedinTitle)}&summary=${encodeURIComponent(linkedinText)}`;
+                    // LinkedIn share uses url param
+                    shareLink = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shortUrl)}`;
                     break;
                 case 'whatsapp':
-                    const waText = `Check this out: ${originalUrl}`;
-                    shareLink = `https://api.whatsapp.com/send?text=${encodeURIComponent(waText + ' ' + shortUrl)}`;
+                    // WhatsApp share: send the URL as the message (will be a clickable link)
+                    shareLink = `https://api.whatsapp.com/send?text=${encodeURIComponent(shortUrl)}`;
                     break;
-                case 'instagram':
-                    // Instagram doesn't provide a direct share URL for links; copy to clipboard and prompt the user
-                    copyToClipboard(shortUrl, null);
-                    showToast('Short URL copied — open Instagram and paste it in a post or story.');
-                    return;
                 default:
                     return;
             }
 
-            // Open popup only if shareLink was created
+            // Open share window
             if (shareLink) {
                 const width = 600;
                 const height = 400;
                 const left = (window.innerWidth - width) / 2 + (window.screenX || 0);
                 const top = (window.innerHeight - height) / 2 + (window.screenY || 0);
-                window.open(
-                    shareLink,
-                    `share_${platform}`,
-                    `width=${width},height=${height},left=${left},top=${top},toolbar=0,location=0,menubar=0,status=0`
-                );
+                window.open(shareLink, `share_${platform}`, `width=${width},height=${height},left=${left},top=${top},toolbar=0,location=0,menubar=0,status=0`);
                 showToast(`Sharing on ${platform.charAt(0).toUpperCase() + platform.slice(1)}...`);
             }
         }
